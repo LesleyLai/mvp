@@ -1,8 +1,8 @@
-module MVP.Tree exposing (drawTree)
+module MVP.Visualizer.AST exposing (drawAST)
 
 import Html exposing (Html)
 import MVP.AST.Runnable exposing (Expr(..), isValue)
-import MVP.Identifier exposing (Identifier)
+import MVP.Data.Identifier exposing (Identifier)
 import Svg exposing (Svg, g, line, rect, svg, text, text_)
 import Svg.Attributes exposing (..)
 import TreeDiagram exposing (Tree, topToBottom, node)
@@ -18,7 +18,7 @@ type alias Color =
     String
 
 
-visualizeAppAst : Expr -> Expr -> FoundActive -> Tree ( String, String )
+visualizeAppAst : Expr -> Expr -> FoundActive -> Tree ( String, Color )
 visualizeAppAst func arg foundActive =
     case foundActive of
         NotFoundActive ->
@@ -84,11 +84,11 @@ visualizePlusAst lhs rhs foundActive =
             node ( "+", defaultBg )
                 [ visualizeAst lhs foundActive, visualizeAst rhs foundActive ]
 
-
+defaultBg: Color
 defaultBg =
     "#128277"
 
-
+activeBg: Color
 activeBg =
     "#12bb77"
 
@@ -113,8 +113,8 @@ visualizeAst expr foundActive =
 
         Lambda { param, body } ->
             node ( "Lambda", defaultBg )
-                [ visualizeAst (Var param) foundActive
-                , visualizeAst body foundActive
+                [ visualizeAst (Var param) FoundActive
+                , visualizeAst body FoundActive
                 ]
 
         App { func, arg } ->
@@ -142,8 +142,8 @@ drawNode ( content, bg ) =
         ]
 
 
-drawTree : Maybe Expr -> Html msg
-drawTree maybeExpr =
+drawAST : Maybe Expr -> Html msg
+drawAST maybeExpr =
     case maybeExpr of
         Just expr ->
             draw

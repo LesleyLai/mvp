@@ -1,4 +1,4 @@
-import * as ace from 'brace/index.js';
+import ace from 'brace/index.js';
 import 'brace/mode/text.js';
 import 'brace/theme/dawn.js';
 

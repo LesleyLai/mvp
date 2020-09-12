@@ -6,7 +6,7 @@ module MVP.AST.Runnable exposing
     )
 
 import MVP.AST.Canonical as Canonical
-import MVP.Identifier exposing (Identifier)
+import MVP.Data.Identifier exposing (Identifier)
 
 
 
@@ -39,10 +39,13 @@ fromCanonical e =
         Canonical.Var id ->
             Var id
 
-        Canonical.Lambda { param, body } ->
+        Canonical.Lambda param body ->
             Lambda { param = param, body = fromCanonical body }
 
-        Canonical.App { func, arg } ->
+        Canonical.App (Canonical.App (Canonical.Var "+") lhs) rhs ->
+            Plus (fromCanonical lhs) (fromCanonical rhs)
+
+        Canonical.App func arg ->
             App { func = fromCanonical func, arg = fromCanonical arg }
 
 

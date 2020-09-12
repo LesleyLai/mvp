@@ -1,6 +1,6 @@
 module MVP.Unify exposing (..)
 
-import MVP.Identifier exposing (Identifier)
+import MVP.Data.Identifier exposing (Identifier)
 import MVP.Types exposing (Type(..))
 
 -- Invariant for substitutions: no id on a lhs occurs in any term earlier

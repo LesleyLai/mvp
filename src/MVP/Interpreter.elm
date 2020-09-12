@@ -1,7 +1,7 @@
 module MVP.Interpreter exposing (step)
 
 import MVP.AST.Runnable as AST exposing (Expr(..), isValue)
-import MVP.Identifier exposing (Identifier)
+import MVP.Data.Identifier exposing (Identifier)
 
 
 
@@ -74,8 +74,7 @@ step expr =
                     }
 
             else
-                Var identifier
-                -- Debug.todo ("Unrecognized identifier " ++ identifier)
+                Var identifier -- Runtime error: should never happen
 
         App { func, arg } ->
             case func of

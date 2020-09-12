@@ -9,7 +9,7 @@ import Json.Encode
 import MVP.AST.Runnable as Runnable exposing (isValue)
 import MVP.Interpreter
 import MVP.Parse
-import MVP.Tree exposing (drawTree)
+import MVP.Visualizer.AST exposing (drawAST)
 import Parser
 
 
@@ -154,7 +154,7 @@ view model =
                        )
                 )
             ]
-        , drawTree currentAst
+        , drawAST currentAst
         , p [ style "color" "red" ]
             [ text
                 (model.errorMsg |> Maybe.withDefault "")

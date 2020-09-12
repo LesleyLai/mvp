@@ -1,6 +1,6 @@
 module MVP.AST.Canonical exposing (Expr(..), toString)
 
-import MVP.Identifier exposing (Identifier)
+import MVP.Data.Identifier exposing (Identifier)
 
 {-
    Canonical AST reflects the "official definition" of the MVP AST
@@ -12,8 +12,8 @@ type Expr
     | Int Int
     | Unit
     | Var Identifier
-    | Lambda { param : Identifier, body : Expr }
-    | App { func : Expr, arg : Expr }
+    | Lambda Identifier Expr -- param body
+    | App Expr Expr -- func arg
 
 toString : Expr -> String
 toString e =
@@ -30,11 +30,11 @@ toString e =
         Unit ->
             "unit"
 
-        Lambda { param, body } ->
+        Lambda param body ->
             "(lambda (" ++ param ++ ") " ++ toString body ++ ")"
 
         Var id ->
             id
 
-        App { func, arg } ->
+        App func arg ->
             "(" ++ toString func ++ " " ++ toString arg ++ ")"

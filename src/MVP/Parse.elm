@@ -6,14 +6,11 @@ import Parser
         ( (|.)
         , (|=)
         , Parser
-        , andThen
-        , chompIf
         , chompWhile
         , end
         , int
         , keyword
         , lazy
-        , oneOf
         , spaces
         , succeed
         , symbol
@@ -65,7 +62,7 @@ expr : Parser Expr
 expr =
     let
         binaryApp func l r =
-            App { arg = r, func = App { arg = l, func = func } }
+            App (App func l) r
     in
     succeed identity
         |. spaces
@@ -80,7 +77,7 @@ expr =
                 , parenExpr
                 ]
             , andThenOneOf =
-                [ Pratt.infixLeft 99 whitespaces (\func arg -> App { arg = arg, func = func })
+                [ Pratt.infixLeft 99 whitespaces App
                 , Pratt.infixLeft 1 (symbol "+") (binaryApp (Var "+"))
                 , Pratt.infixLeft 1 (symbol "-") (binaryApp (Var "-"))
                 , Pratt.infixLeft 2 (symbol "*") (binaryApp (Var "*"))
@@ -125,7 +122,7 @@ unit =
 
 lambda : Parser Expr
 lambda =
-    succeed (\param body -> Lambda { param = param, body = body })
+    succeed Lambda
         |. symbol "\\"
         |. spaces
         |= lowerCaseIdent

@@ -1,6 +1,6 @@
 module MVP.Types exposing (Type(..))
 
-import MVP.Identifier exposing (Identifier)
+import MVP.Data.Identifier exposing (Identifier)
 
 type Type
     = TVar Identifier
