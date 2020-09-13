@@ -145,15 +145,6 @@ view model =
             , button [ disabled cannotContinue, Html.Events.onClick Step ] [ text "Step Forward" ]
             , button [ disabled cannotStepBack, Html.Events.onClick StepBack ] [ text "Step Backward" ]
             ]
-        , p []
-            [ text
-                ("AST: "
-                    ++ (currentAst
-                            |> Maybe.map Runnable.toString
-                            |> Maybe.withDefault ""
-                       )
-                )
-            ]
         , drawAST currentAst
         , p [ style "color" "red" ]
             [ text

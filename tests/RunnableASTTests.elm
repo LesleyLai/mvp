@@ -3,6 +3,7 @@ module RunnableASTTests exposing (..)
 import Expect
 import MVP.AST.Runnable as AST exposing (Expr(..))
 import Test exposing (..)
+import MVP.Data.Builtins exposing (BinaryOp(..))
 
 isValueTests : Test
 isValueTests =
@@ -34,6 +35,6 @@ isValueTests =
                     }
               , False
               )
-            , ("Plus is not a value", Plus (Var "x") (Var "y"), False)
+            , ("BinaryOp is not a value", BinaryOp Plus (Var "x") (Var "y"), False)
             ]
         )

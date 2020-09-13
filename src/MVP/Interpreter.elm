@@ -2,8 +2,7 @@ module MVP.Interpreter exposing (step)
 
 import MVP.AST.Runnable as AST exposing (Expr(..), isValue)
 import MVP.Data.Identifier exposing (Identifier)
-
-
+import MVP.Data.Builtins exposing (BinaryOp(..))
 
 -- A substitution-based interpreter
 
@@ -47,8 +46,8 @@ subst expr_ x expr =
         App { func, arg } ->
             App { func = subst expr_ x func, arg = subst expr_ x arg }
 
-        Plus lhs rhs ->
-            Plus (subst expr_ x lhs) (subst expr_ x rhs)
+        BinaryOp op lhs rhs ->
+            BinaryOp op (subst expr_ x lhs) (subst expr_ x rhs)
 
 
 step : Expr -> Expr
@@ -67,14 +66,7 @@ step expr =
             expr
 
         Var identifier ->
-            if identifier == "+" then
-                Lambda
-                    { body = Lambda { body = Plus (Var "lhs") (Var "rhs"), param = "rhs" }
-                    , param = "lhs"
-                    }
-
-            else
-                Var identifier -- Runtime error: should never happen
+            Var identifier -- Runtime type error: should never happen
 
         App { func, arg } ->
             case func of
@@ -88,11 +80,19 @@ step expr =
                 _ ->
                     App { func = step func, arg = arg }
 
-        Plus (Int x) (Int y) ->
-            Int (x + y)
-
-        Plus (Int x) y ->
-            Plus (Int x) (step y)
-
-        Plus x y ->
-            Plus (step x) y
+        BinaryOp op lhs rhs ->
+            if isValue lhs && isValue rhs then
+                case (op, lhs, rhs) of
+                    (Plus, Int x, Int y) ->
+                        Int (x + y)
+                    (Minus, Int x, Int y) ->
+                        Int (x - y)
+                    (Multiplies, Int x, Int y) ->
+                        Int (x * y)
+                    (Divides, Int x, Int y) ->
+                        Int (x // y)
+                    _ -> BinaryOp op lhs rhs -- Runtime type error: should never happen
+            else if isValue lhs then
+                BinaryOp op lhs (step rhs)
+            else
+                BinaryOp op (step lhs) rhs

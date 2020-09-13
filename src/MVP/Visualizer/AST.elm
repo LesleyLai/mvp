@@ -7,7 +7,8 @@ import Svg exposing (Svg, g, line, rect, svg, text, text_)
 import Svg.Attributes exposing (..)
 import TreeDiagram exposing (Tree, topToBottom, node)
 import TreeDiagram.Svg exposing (draw)
-
+import MVP.Data.Builtins exposing (BinaryOp)
+import MVP.Data.Builtins exposing (binaryOpName)
 
 type FoundActive
     = FoundActive
@@ -63,25 +64,26 @@ visualizeVarAst id foundActive =
     node ( "'" ++ id, bg ) []
 
 
-visualizePlusAst : Expr -> Expr -> FoundActive -> Tree ( String, Color )
-visualizePlusAst lhs rhs foundActive =
+visualizeBinaryOpAst : BinaryOp -> Expr -> Expr -> FoundActive -> Tree ( String, Color )
+visualizeBinaryOpAst op lhs rhs foundActive =
+    let name = binaryOpName op in
     case foundActive of
         NotFoundActive ->
             case ( lhs, rhs ) of
                 ( Int _, Int _ ) ->
-                    node ( "+", activeBg )
+                    node ( name, activeBg )
                         [ visualizeAst lhs FoundActive, visualizeAst rhs FoundActive ]
 
                 ( _, Int _ ) ->
-                    node ( "+", defaultBg )
+                    node ( name, defaultBg )
                         [ visualizeAst lhs NotFoundActive, visualizeAst rhs FoundActive ]
 
                 ( _, _ ) ->
-                    node ( "+", defaultBg )
+                    node ( name, defaultBg )
                         [ visualizeAst lhs FoundActive, visualizeAst rhs NotFoundActive ]
 
         _ ->
-            node ( "+", defaultBg )
+            node ( name, defaultBg )
                 [ visualizeAst lhs foundActive, visualizeAst rhs foundActive ]
 
 defaultBg: Color
@@ -120,8 +122,8 @@ visualizeAst expr foundActive =
         App { func, arg } ->
             visualizeAppAst func arg foundActive
 
-        Plus lhs rhs ->
-            visualizePlusAst lhs rhs foundActive
+        BinaryOp op lhs rhs ->
+            visualizeBinaryOpAst op lhs rhs foundActive
 
 
 drawLine : ( Float, Float ) -> Svg msg

@@ -6,6 +6,7 @@ module MVP.AST.Runnable exposing
     )
 
 import MVP.AST.Canonical as Canonical
+import MVP.Data.Builtins exposing (BinaryOp(..), binaryOpName)
 import MVP.Data.Identifier exposing (Identifier)
 
 
@@ -14,6 +15,7 @@ import MVP.Data.Identifier exposing (Identifier)
    Runnable AST is what get used at runtime
 -}
 
+
 type Expr
     = Bool Bool
     | Int Int
@@ -21,7 +23,7 @@ type Expr
     | Var Identifier
     | Lambda { param : Identifier, body : Expr }
     | App { func : Expr, arg : Expr }
-    | Plus Expr Expr
+    | BinaryOp BinaryOp Expr Expr
 
 
 fromCanonical : Canonical.Expr -> Expr
@@ -43,7 +45,16 @@ fromCanonical e =
             Lambda { param = param, body = fromCanonical body }
 
         Canonical.App (Canonical.App (Canonical.Var "+") lhs) rhs ->
-            Plus (fromCanonical lhs) (fromCanonical rhs)
+            BinaryOp Plus (fromCanonical lhs) (fromCanonical rhs)
+
+        Canonical.App (Canonical.App (Canonical.Var "-") lhs) rhs ->
+            BinaryOp Minus (fromCanonical lhs) (fromCanonical rhs)
+
+        Canonical.App (Canonical.App (Canonical.Var "*") lhs) rhs ->
+            BinaryOp Multiplies (fromCanonical lhs) (fromCanonical rhs)
+
+        Canonical.App (Canonical.App (Canonical.Var "/") lhs) rhs ->
+            BinaryOp Divides (fromCanonical lhs) (fromCanonical rhs)
 
         Canonical.App func arg ->
             App { func = fromCanonical func, arg = fromCanonical arg }
@@ -64,7 +75,8 @@ isValue e =
         Lambda _ ->
             True
 
-        _ -> False
+        _ ->
+            False
 
 
 toString : Expr -> String
@@ -91,5 +103,11 @@ toString e =
         App { func, arg } ->
             "(" ++ toString func ++ " " ++ toString arg ++ ")"
 
-        Plus lhs rhs ->
-            "(+ " ++ toString lhs ++ " " ++ toString rhs ++ ")"
+        BinaryOp op lhs rhs ->
+            "("
+                ++ binaryOpName op
+                ++ " "
+                ++ toString lhs
+                ++ " "
+                ++ toString rhs
+                ++ ")"
