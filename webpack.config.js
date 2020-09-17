@@ -7,15 +7,17 @@ const HTMLWebpackPlugin = require("html-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 var MODE =
-    process.env.npm_lifecycle_event === "prod" ? "production" : "development";
+    process.env.npm_lifecycle_event === "build:prod" ? "production" : "development";
+
 var withDebug = !process.env["npm_config_nodebug"] && MODE == "development";
 // this may help for Yarn users
 // var withDebug = !npmParams.includes("--nodebug");
 console.log(
     "\x1b[36m%s\x1b[0m",
-    `** elm-webpack-starter: mode "${MODE}", withDebug: ${withDebug}\n`
+    `** starting webpack: mode "${MODE}", withDebug: ${withDebug}\n`
 );
 
 var common = {
@@ -123,9 +125,14 @@ if (MODE === "development") {
 if (MODE === "production") {
     module.exports = merge(common, {
         optimization: {
+            minimize: true,
             minimizer: [
-                new OptimizeCSSAssetsPlugin({})
-            ]
+                new OptimizeCSSAssetsPlugin({}),
+                new UglifyJsPlugin()
+            ],
+            splitChunks: {
+                chunks: "all",
+            },
         },
         plugins: [
             // Delete everything from output-path (/dist) and report to user
