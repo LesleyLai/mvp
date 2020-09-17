@@ -5,9 +5,11 @@ const merge = require("webpack-merge");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HTMLWebpackPlugin = require("html-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
-
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
+
+const RemarkHTML = require("remark-html");
+
 
 var MODE =
     process.env.npm_lifecycle_event === "build:prod" ? "production" : "development";
@@ -73,7 +75,27 @@ var common = {
                 test: /\.(jpe?g|png|gif|svg)$/i,
                 exclude: [/elm-stuff/, /node_modules/],
                 loader: "file-loader"
-            }
+            },
+            {
+                test: /\.md$/,
+                use: [
+                    {
+                        loader: 'html-loader',
+                    },
+                    {
+                        loader: 'remark-loader',
+                        options: {
+                            remarkOptions: {
+                                plugins: [RemarkHTML],
+                                settings: {
+                                    bullet: '+',
+                                    listItemIndent: '1',
+                                },
+                            },
+                        },
+                    },
+                ],
+            },
         ]
     }
 };
@@ -114,7 +136,7 @@ if (MODE === "development") {
             // feel free to delete this section if you don't need anything like this
             before(app) {
                 // on port 3000
-                app.get("/test", function(req, res) {
+                app.get("/test", function (req, res) {
                     res.json({ result: "OK" });
                 });
             }

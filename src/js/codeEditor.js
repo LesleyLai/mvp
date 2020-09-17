@@ -2,6 +2,8 @@ import ace from 'brace/index.js';
 import 'brace/mode/text.js';
 import 'brace/theme/dawn.js';
 
+import firstmd from '../contents/first.md';
+
 class CodeEditor extends HTMLElement {
     constructor() { super(); }
     connectedCallback() {
@@ -21,6 +23,10 @@ class CodeEditor extends HTMLElement {
 
         codeEditorNode.dispatchEvent(event);
       });
+
+      const wrapper= document.createElement('div');
+      wrapper.innerHTML= firstmd;
+      this.appendChild(wrapper);
     }
 };
 
