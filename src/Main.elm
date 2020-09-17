@@ -1,17 +1,16 @@
 module Main exposing (main)
 
 import Browser
-import Html exposing (Attribute, Html, button, div, h1, h2, node, p, text, textarea)
-import Html.Attributes exposing (disabled, property, style)
+import Html exposing (Attribute, Html, button, div, h1, h2, node, p, text)
+import Html.Attributes exposing (disabled, style)
 import Html.Events
 import Json.Decode
-import Json.Encode
 import MVP.AST.Runnable as Runnable exposing (isValue)
 import MVP.Interpreter
 import MVP.Parse
 import MVP.Visualizer.AST exposing (drawAST)
 import Parser
-
+import Html.Attributes exposing (attribute)
 
 
 ---- MODEL ----
@@ -116,7 +115,6 @@ codeEditor : List (Attribute msg) -> List (Html msg) -> Html msg
 codeEditor =
     node "code-editor"
 
-
 view : Model -> Html Msg
 view model =
     let
@@ -135,7 +133,7 @@ view model =
         [ h1 [] [ text "MVP Interpreter" ]
         , h2 [] [ text "Minimal Visual Pedagogical Interpreter" ]
         , codeEditor
-            [ property "source" (Json.Encode.string model.source)
+            [ attribute "source" model.source
             , onSourceChange
             ]
             []
