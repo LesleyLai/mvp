@@ -2,32 +2,40 @@ import ace from 'brace/index.js';
 import 'brace/mode/text.js';
 import 'brace/theme/dawn.js';
 
-import firstmd from '../contents/first.md';
-
 class CodeEditor extends HTMLElement {
-    constructor() { super(); }
-    connectedCallback() {
-      const div = document.createElement("div");
-      div.classList.add("code-editor");
-      this.appendChild(div);
-      const editor = ace.edit(div);
-      editor.getSession().setMode('ace/mode/text');
-      editor.setTheme('ace/theme/dawn');
-      editor.setFontSize("14px");
+  constructor() {
+    super();
 
-      const codeEditorNode = this;
-      editor.on("change", (_) => {
-        const event = new CustomEvent("source-change", {
-          detail: { source: editor.getValue() }
-        });
+    this.div = document.createElement("div");
+    this.div.classList.add("code-editor");
+    this.editor = ace.edit(this.div);
+    this.editor.getSession().setMode('ace/mode/text');
+    this.editor.setTheme('ace/theme/dawn');
+    this.editor.setFontSize("14px");
+  }
+  connectedCallback() {
+    this.appendChild(this.div);
 
-        codeEditorNode.dispatchEvent(event);
+
+    const codeEditorNode = this;
+    this.editor.on("change", (_) => {
+      const event = new CustomEvent("source-change", {
+        detail: { source: this.editor.getValue() }
       });
 
-      const wrapper= document.createElement('div');
-      wrapper.innerHTML= firstmd;
-      this.appendChild(wrapper);
+      codeEditorNode.dispatchEvent(event);
+    });
+  }
+
+  attributeChangedCallback() {
+    const editor = this.editor;
+    const source = this.getAttribute("source");
+    const document = editor.getSession().getDocument();
+    if (document.getValue() != source) {
+      document.setValue(source);
     }
+  }
+  static get observedAttributes() { return ["source"]; }
 };
 
 export default CodeEditor;
