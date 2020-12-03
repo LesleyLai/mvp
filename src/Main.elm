@@ -2,7 +2,7 @@ module Main exposing (main)
 
 import Browser
 import Html exposing (Attribute, Html, button, div, h1, h2, node, p, text)
-import Html.Attributes exposing (disabled, style)
+import Html.Attributes exposing (attribute, disabled, style)
 import Html.Events
 import Json.Decode
 import MVP.AST.Runnable as Runnable exposing (isValue)
@@ -10,7 +10,7 @@ import MVP.Interpreter
 import MVP.Parse
 import MVP.Visualizer.AST exposing (drawAST)
 import Parser
-import Html.Attributes exposing (attribute)
+
 
 
 ---- MODEL ----
@@ -25,7 +25,9 @@ type alias Model =
 
 init : ( Model, Cmd Msg )
 init =
-    ( { source = "", astHistory = [], errorMsg = Nothing }, Cmd.none )
+    ( { source = """(\\a -> \\x -> \\y ->
+  a * x + y)
+  10 20 30""", astHistory = [], errorMsg = Nothing }, Cmd.none )
 
 
 
@@ -107,13 +109,14 @@ update msg model =
 onSourceChange : Attribute Msg
 onSourceChange =
     Json.Decode.at [ "detail", "source" ] Json.Decode.string
-    |> Json.Decode.map SourceChange
-    |> Html.Events.on "source-change"
+        |> Json.Decode.map SourceChange
+        |> Html.Events.on "source-change"
 
 
 codeEditor : List (Attribute msg) -> List (Html msg) -> Html msg
 codeEditor =
     node "code-editor"
+
 
 view : Model -> Html Msg
 view model =
