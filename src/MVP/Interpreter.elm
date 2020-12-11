@@ -81,9 +81,9 @@ step expr =
             { expr = expr, semantics = NoSemantics }
 
         Var identifier ->
+            -- Runtime type error: should never happen
             { expr = Var identifier, semantics = NoSemantics }
 
-        -- Runtime type error: should never happen
         App { func, arg } ->
             case func of
                 Lambda { body, param } ->
@@ -100,23 +100,23 @@ step expr =
             if isValue lhs && isValue rhs then
                 case ( op, lhs, rhs ) of
                     ( Plus, Int x, Int y ) ->
-                        { expr = Int (x + y), semantics = NoSemantics }
+                        { expr = Int (x + y), semantics = AppApply }
 
                     ( Minus, Int x, Int y ) ->
-                        { expr = Int (x - y), semantics = NoSemantics }
+                        { expr = Int (x - y), semantics = AppApply }
 
                     ( Multiplies, Int x, Int y ) ->
-                        { expr = Int (x * y), semantics = NoSemantics }
+                        { expr = Int (x * y), semantics = AppApply }
 
                     ( Divides, Int x, Int y ) ->
-                        { expr = Int (x // y), semantics = NoSemantics }
+                        { expr = Int (x // y), semantics = AppApply }
 
                     _ ->
+                        -- Runtime type error: should never happen
                         { expr = BinaryOp op lhs rhs, semantics = NoSemantics }
-                -- Runtime type error: should never happen
 
             else if isValue lhs then
-                { expr = BinaryOp op lhs (step rhs).expr, semantics = NoSemantics }
+                { expr = BinaryOp op lhs (step rhs).expr, semantics = AppStepArg }
 
             else
-                { expr = BinaryOp op (step lhs).expr rhs, semantics = NoSemantics }
+                { expr = BinaryOp op (step lhs).expr rhs, semantics = AppStepArg }
