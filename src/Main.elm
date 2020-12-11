@@ -27,7 +27,15 @@ type alias Model =
 
 init : ( Model, Cmd Msg )
 init =
-    ( { source = "", astHistory = [], errorMsg = Nothing, semanticsHistory = [] }, Cmd.none )
+    ( { source = """(\\a -> \\x -> \\y ->
+  a * x + y)
+  10 20 30"""
+      , astHistory = []
+      , errorMsg = Nothing
+      , semanticsHistory = []
+      }
+    , Cmd.none
+    )
 
 
 
@@ -101,18 +109,6 @@ update msg model =
 
 
 
--- let
---     execute astHistory =
---         case astHistory of
---             [] ->
---                 []
---             ast :: _ ->
---                 if isValue ast then
---                     astHistory
---                 else
---                     execute (MVP.Interpreter.step ast :: astHistory)
--- in
--- ( { model | astHistory = execute model.astHistory, errorMsg = Nothing }, Cmd.none )
 ---- VIEW ----
 
 
