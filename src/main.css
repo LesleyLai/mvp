@@ -30,3 +30,8 @@ img {
   height: 120px;
   margin: auto;
 }
+
+.markdown-view {
+  width: 600px;
+  margin: auto;
+}

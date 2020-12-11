@@ -1,8 +1,17 @@
-module MVP.Interpreter exposing (step)
+module MVP.Interpreter exposing (Semantics(..), step)
 
 import MVP.AST.Runnable as AST exposing (Expr(..), isValue)
-import MVP.Data.Identifier exposing (Identifier)
 import MVP.Data.Builtins exposing (BinaryOp(..))
+import MVP.Data.Identifier exposing (Identifier)
+
+
+type Semantics
+    = NoSemantics
+    | AppApply
+    | AppStepArg
+    | AppStepFunc
+
+
 
 -- A substitution-based interpreter
 
@@ -50,49 +59,64 @@ subst expr_ x expr =
             BinaryOp op (subst expr_ x lhs) (subst expr_ x rhs)
 
 
-step : Expr -> Expr
+type alias StepResult =
+    { expr : Expr
+    , semantics : Semantics
+    }
+
+
+step : Expr -> StepResult
 step expr =
     case expr of
         Bool _ ->
-            expr
+            { expr = expr, semantics = NoSemantics }
 
         Int _ ->
-            expr
+            { expr = expr, semantics = NoSemantics }
 
         Unit ->
-            expr
+            { expr = expr, semantics = NoSemantics }
 
         Lambda _ ->
-            expr
+            { expr = expr, semantics = NoSemantics }
 
         Var identifier ->
-            Var identifier -- Runtime type error: should never happen
+            { expr = Var identifier, semantics = NoSemantics }
 
+        -- Runtime type error: should never happen
         App { func, arg } ->
             case func of
                 Lambda { body, param } ->
                     if isValue arg then
-                        subst arg param body
+                        { expr = subst arg param body, semantics = AppApply }
 
                     else
-                        App { func = func, arg = step arg }
+                        { expr = App { func = func, arg = (step arg).expr }, semantics = AppStepArg }
 
                 _ ->
-                    App { func = step func, arg = arg }
+                    { expr = App { func = (step func).expr, arg = arg }, semantics = AppStepFunc }
 
         BinaryOp op lhs rhs ->
             if isValue lhs && isValue rhs then
-                case (op, lhs, rhs) of
-                    (Plus, Int x, Int y) ->
-                        Int (x + y)
-                    (Minus, Int x, Int y) ->
-                        Int (x - y)
-                    (Multiplies, Int x, Int y) ->
-                        Int (x * y)
-                    (Divides, Int x, Int y) ->
-                        Int (x // y)
-                    _ -> BinaryOp op lhs rhs -- Runtime type error: should never happen
+                case ( op, lhs, rhs ) of
+                    ( Plus, Int x, Int y ) ->
+                        { expr = Int (x + y), semantics = NoSemantics }
+
+                    ( Minus, Int x, Int y ) ->
+                        { expr = Int (x - y), semantics = NoSemantics }
+
+                    ( Multiplies, Int x, Int y ) ->
+                        { expr = Int (x * y), semantics = NoSemantics }
+
+                    ( Divides, Int x, Int y ) ->
+                        { expr = Int (x // y), semantics = NoSemantics }
+
+                    _ ->
+                        { expr = BinaryOp op lhs rhs, semantics = NoSemantics }
+                -- Runtime type error: should never happen
+
             else if isValue lhs then
-                BinaryOp op lhs (step rhs)
+                { expr = BinaryOp op lhs (step rhs).expr, semantics = NoSemantics }
+
             else
-                BinaryOp op (step lhs) rhs
+                { expr = BinaryOp op (step lhs).expr rhs, semantics = NoSemantics }

@@ -9,6 +9,8 @@ const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
 
 const RemarkHTML = require("remark-html");
+const RemarkMath = require("remark-math");
+const RemarkHTMLKatex = require("remark-html-katex");
 
 
 var MODE =
@@ -54,7 +56,7 @@ var common = {
             },
             {
                 test: /\.css$/,
-                exclude: [/elm-stuff/, /node_modules/],
+                exclude: [/elm-stuff/],
                 loaders: ["style-loader", "css-loader?url=false"]
             },
             {
@@ -86,7 +88,35 @@ var common = {
                         loader: 'remark-loader',
                         options: {
                             remarkOptions: {
-                                plugins: [RemarkHTML],
+                                plugins: [
+                                    RemarkMath,
+                                    [RemarkHTMLKatex, {
+                                        macros: {
+                                            // Types
+                                            "\\TInt": "\\texttt{Ints}",
+                                            "\\TIntC": "\\texttt{int}",
+
+                                            // Expressions
+                                            "\\EInt": "\\texttt{Int}(#1)",
+                                            "\\EBool": "\\texttt{Bool}(#1)",
+                                            "\\ETrueC": "\\texttt{True}",
+                                            "\\EFalseC": "\\texttt{False}",
+                                            "\\EUnit": "\\texttt{Unit}",
+                                            "\\EUnitC": "\\texttt{()}",
+                                            "\\ELambda": "\\lambda(#1.#2)",
+                                            "\\ELambdaC": "\\backslash#1\\rightarrow #2",
+                                            "\\EApp": "\\texttt{App}(#1, #2)",
+                                            "\\EAppC": "#1\\ #2",
+                                            "\\EVar": "\\texttt{Var}(#1)",
+
+                                            // Judgements
+                                            "\\step": "\\longmapsto",
+                                            "\\steps": "#1 \\step #2",
+                                            "\\subst": "[#1/#2]#3",
+                                            "\\Jval": "#1~\\textsf{val}",
+                                        }
+                                    }],
+                                    RemarkHTML],
                                 settings: {
                                     bullet: '+',
                                     listItemIndent: '1',
